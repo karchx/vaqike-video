@@ -6,10 +6,16 @@ cc_library(
     hdrs = ["include/demuxer.h"],
 )
 
+cc_library(
+    name = "decoder_lib",
+    srcs = ["decoder.cc"],
+    hdrs = ["include/decoder.h"],
+)
+
 cc_binary(
     name = "vaqike",
     srcs = ["main.cc"],
-    deps = [":demuxer_lib"],
+    deps = [":demuxer_lib", ":decoder_lib"],
     linkopts = [
         "-lwebpdemux",
         "-lwebp",

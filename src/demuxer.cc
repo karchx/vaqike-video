@@ -1,6 +1,4 @@
 #include "include/demuxer.h"
-#include <libavcodec/codec_par.h>
-#include <libavformat/avformat.h>
 
 Demuxer::Demuxer(const std::string& filepath) {
     format_ctx_ = avformat_alloc_context();
