@@ -24,10 +24,12 @@ public:
     bool ReadVideoPacket(AVPacket* packet);
 
     int GetVideoStreamIndex() const;
+    AVRational GetTimeBase() const;
+    AVRational GetFrameRate() const;
     AVCodecParameters* GetVideoCodecParameters() const;
 
 private:
-    AVFormatContext* format_ctx_ = nullptr;
+    AVFormatContext* fmt_ctx_ = nullptr;
     int video_stream_index_ = -1;
 };
 
