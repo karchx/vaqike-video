@@ -7,7 +7,7 @@ Scaler::Scaler(int in_width, int in_height, AVPixelFormat in_pix_fmt,
         sws_ctx_ = sws_getContext(
                 in_width, in_height, in_pix_fmt,
                 out_width, out_height, out_pix_fmt,
-                SWS_LANCZOS, nullptr, nullptr, nullptr
+                SWS_FAST_BILINEAR, nullptr, nullptr, nullptr
         );
 
         if (!sws_ctx_) {

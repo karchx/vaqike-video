@@ -15,14 +15,17 @@ Muxer::~Muxer() {
     }
 }
 
-void Muxer::AddStream(AVCodecContext* enc_ctx) {
-    stream_ = avformat_new_stream(fmt_ctx_, nullptr);
-    if (!stream_) throw std::runtime_error("Failed create enconder stream");
+int Muxer::AddStream(AVCodecContext* enc_ctx) {
+    AVStream* stream = avformat_new_stream(fmt_ctx_, nullptr);
+    if (!stream) throw std::runtime_error("Failed create enconder stream");
 
-    stream_->id = fmt_ctx_->nb_streams - 1;
-    if (avcodec_parameters_from_context(stream_->codecpar, enc_ctx) < 0) {
+    stream->id = fmt_ctx_->nb_streams - 1;
+    if (avcodec_parameters_from_context(stream->codecpar, enc_ctx) < 0) {
         throw std::runtime_error("Error copying encoder parameters to the stream");
     }
+    // get time base original
+    stream->time_base = enc_ctx->time_base;
+    return stream->index;
 }
 
 void Muxer::WriteHeader() {
@@ -37,11 +40,16 @@ void Muxer::WriteHeader() {
     }
 }
 
-void Muxer::WritePacket(AVPacket* pkt, AVRational encoder_time_base) {
-    av_packet_rescale_ts(pkt, encoder_time_base, stream_->time_base);
-    pkt->stream_index = stream_->index;
+void Muxer::WritePacket(AVPacket* pkt, AVRational encoder_time_base, int stream_index) {
+    std::lock_guard<std::mutex> lock(write_mutex_);
+    
+    AVStream* stream = fmt_ctx_->streams[stream_index];
+    av_packet_rescale_ts(pkt, encoder_time_base, stream->time_base);
+    pkt->stream_index = stream_index;
 
-    av_interleaved_write_frame(fmt_ctx_, pkt);
+    if(av_interleaved_write_frame(fmt_ctx_, pkt) < 0) {
+        throw std::runtime_error("Write error frame \n");
+    }
 }
 
 void Muxer::WriteTrailer() {

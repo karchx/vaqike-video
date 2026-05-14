@@ -17,10 +17,11 @@ Demuxer::Demuxer(const std::string& filepath) {
     }
 
     video_stream_index_ = av_find_best_stream(fmt_ctx_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    audio_stream_index_ = av_find_best_stream(fmt_ctx_, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 
-    if (video_stream_index_ < 0) {
+    if (video_stream_index_ < 0 && audio_stream_index_ < 0) {
         avformat_close_input(&fmt_ctx_);
-        throw std::runtime_error("Not found video in file");
+        throw std::runtime_error("Not video or audio streams found");
     }
 };
 
@@ -30,23 +31,18 @@ Demuxer::~Demuxer() {
     }
 }
 
-bool Demuxer::ReadVideoPacket(AVPacket* packet) {
+bool Demuxer::ReadPacket(AVPacket* packet) {
     if (!packet) return false;
 
-    while (av_read_frame(fmt_ctx_, packet) >= 0) {
-        if (packet->stream_index == video_stream_index_) {
-            return true;
-        }
-
-        // TODO: validate this packet is audio
-        av_packet_unref(packet);
-    }
-
-    return false;
+    return av_read_frame(fmt_ctx_, packet) >= 0;
 }
 
 int Demuxer::GetVideoStreamIndex() const {
     return video_stream_index_;
+}
+
+int Demuxer::GetAudioStreamIndex() const {
+    return audio_stream_index_;
 }
 
 AVRational Demuxer::GetTimeBase() const {
@@ -64,3 +60,12 @@ AVCodecParameters* Demuxer::GetVideoCodecParameters() const {
 
     return nullptr;
 }
+
+AVCodecParameters* Demuxer::GetAudioCodecParameters() const {
+    if (audio_stream_index_ >= 0 && fmt_ctx_) {
+        return fmt_ctx_->streams[audio_stream_index_]->codecpar;
+    }
+
+    return nullptr;
+}
+

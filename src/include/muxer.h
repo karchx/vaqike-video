@@ -2,6 +2,8 @@
 #define MUXER_H
 
 #include <string>
+#include <mutex>
+#include <vector>
 #include <stdexcept>
 
 extern "C" {
@@ -14,15 +16,15 @@ public:
     Muxer(const std::string& filename);
     ~Muxer();
 
-    void AddStream(AVCodecContext* enc_ctx);
+    int AddStream(AVCodecContext* enc_ctx);
     void WriteHeader();
 
-    void WritePacket(AVPacket* pkt, AVRational encoder_time_base);
+    void WritePacket(AVPacket* pkt, AVRational encoder_time_base, int stream_index);
     void WriteTrailer();
 
 private:
     AVFormatContext* fmt_ctx_ = nullptr;
-    AVStream* stream_ = nullptr;
+    std::mutex write_mutex_;
 };
 
 #endif // MUXER_H

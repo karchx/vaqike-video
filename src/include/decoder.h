@@ -18,6 +18,8 @@ public:
     bool SendPacket(const AVPacket* packet);
     bool ReceiveFrame(AVFrame* frame);
 
+    AVCodecContext* GetContext() const { return codec_ctx_; }
+
 private:
     AVCodecContext* codec_ctx_ = nullptr;
 };

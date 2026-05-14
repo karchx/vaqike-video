@@ -46,6 +46,7 @@ cc_binary(
         "-lavformat",
         "-lavcodec",
         "-lswscale",
+        "-lswresample",
         "-lavutil",
         "-lx264",
         "-lpthread",

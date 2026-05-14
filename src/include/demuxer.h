@@ -21,16 +21,19 @@ public:
     Demuxer(const Demuxer&) = delete;
     Demuxer& operator=(const Demuxer&) = delete;
 
-    bool ReadVideoPacket(AVPacket* packet);
+    bool ReadPacket(AVPacket* packet);
 
     int GetVideoStreamIndex() const;
+    int GetAudioStreamIndex() const;
     AVRational GetTimeBase() const;
     AVRational GetFrameRate() const;
     AVCodecParameters* GetVideoCodecParameters() const;
+    AVCodecParameters* GetAudioCodecParameters() const;
 
 private:
     AVFormatContext* fmt_ctx_ = nullptr;
     int video_stream_index_ = -1;
+    int audio_stream_index_ = -1;
 };
 
 #endif
