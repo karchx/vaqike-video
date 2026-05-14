@@ -31,6 +31,12 @@ cc_library(
 )
 
 cc_library(
+    name = "rescale_lib",
+    srcs = ["rescale.cc"],
+    hdrs = ["include/rescale.h"],
+)
+
+cc_library(
     name = "queue_lib",
     srcs = ["queue.cc"],
     hdrs = ["include/queue.h"],
@@ -39,7 +45,7 @@ cc_library(
 cc_binary(
     name = "vaqike",
     srcs = ["main.cc"],
-    deps = [":demuxer_lib", ":muxer_lib", ":decoder_lib", ":encoder_lib", ":scaler_lib", ":queue_lib"],
+    deps = [":demuxer_lib", ":muxer_lib", ":decoder_lib", ":encoder_lib", ":scaler_lib", ":queue_lib", ":rescale_lib"],
     linkopts = [
         "-lwebpdemux",
         "-lwebp",
