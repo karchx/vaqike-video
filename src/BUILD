@@ -1,6 +1,28 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
+    name = "libwebrtc_native",
+    srcs = ["third_party/webrtc/lib/libwebrtc.a"],
+    hdrs = glob(["third_party/webrtc/include/**/*.h"]),
+    includes = ["third_party/webrtc/include"],
+    visibility = ["//visibility:public"],
+    linkopts = [
+        "-lpthread",
+        "-ldl",
+        "-lrt",
+        "-lX11",
+        "-lXext",
+        "-lXdamage",
+        "-lXfixes",
+        "-lXcomposite",
+        "-lXrandr",
+        "-lXtst",
+        "-lglib-2.0",
+        "-lgobject-2.0",
+    ],
+)
+
+cc_library(
     name = "demuxer_lib",
     srcs = ["demuxer.cc"],
     hdrs = ["include/demuxer.h"],
@@ -45,7 +67,7 @@ cc_library(
 cc_binary(
     name = "vaqike",
     srcs = ["main.cc"],
-    deps = [":demuxer_lib", ":muxer_lib", ":decoder_lib", ":encoder_lib", ":scaler_lib", ":queue_lib", ":rescale_lib"],
+    deps = [":demuxer_lib", ":muxer_lib", ":decoder_lib", ":encoder_lib", ":scaler_lib", ":queue_lib", ":rescale_lib", ":libwebrtc_native"],
     linkopts = [
         "-lwebpdemux",
         "-lwebp",
